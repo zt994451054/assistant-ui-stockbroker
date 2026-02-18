@@ -4,13 +4,20 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["**/dist/**"]
+      "outputs": ["**/dist/**", "**/.next/**"]
     },
-    "lint": {
-      "dependsOn": ["^lint"]
+    "dev": {
+      "cache": false,
+      "persistent": true
     },
-    "format": {
-      "dependsOn": ["^format"]
+    "deps:check": {
+      "cache": false
+    },
+    "deps:update": {
+      "cache": false
+    },
+    "deps:update:no-install": {
+      "cache": false
     }
   }
 }

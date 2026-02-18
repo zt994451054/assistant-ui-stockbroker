@@ -1,5 +1,8 @@
-import { ThreadState, Client } from "@langchain/langgraph-sdk";
-import { LangChainMessage } from "@assistant-ui/react-langgraph";
+import {
+  LangChainMessage,
+  LangGraphMessagesEvent,
+} from "@assistant-ui/react-langgraph";
+import { Client, ThreadState } from "@langchain/langgraph-sdk";
 
 const createClient = () => {
   const apiUrl =
@@ -21,8 +24,8 @@ export const createThread = async () => {
 };
 
 export const getThreadState = async (
-  threadId: string
-): Promise<ThreadState<Record<string, any>>> => {
+  threadId: string,
+): Promise<ThreadState<Record<string, unknown>>> => {
   const client = createClient();
   return client.threads.getState(threadId);
 };
@@ -30,9 +33,9 @@ export const getThreadState = async (
 export const updateState = async (
   threadId: string,
   fields: {
-    newState: Record<string, any>;
+    newState: Record<string, unknown>;
     asNode?: string;
-  }
+  },
 ) => {
   const client = createClient();
   return client.threads.updateState(threadId, {
@@ -41,13 +44,13 @@ export const updateState = async (
   });
 };
 
-export const sendMessage = async (params: {
+export const sendMessage = (params: {
   threadId: string;
   messages: LangChainMessage[];
-}) => {
+}): AsyncGenerator<LangGraphMessagesEvent<LangChainMessage>> => {
   const client = createClient();
 
-  let input: Record<string, any> | null = {
+  const input: Record<string, unknown> | null = {
     messages: params.messages,
   };
   const config = {
@@ -63,6 +66,6 @@ export const sendMessage = async (params: {
       input,
       config,
       streamMode: "messages",
-    }
-  );
+    },
+  ) as AsyncGenerator<LangGraphMessagesEvent<LangChainMessage>>;
 };

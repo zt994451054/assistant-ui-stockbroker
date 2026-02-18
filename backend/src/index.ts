@@ -1,22 +1,18 @@
-import { ToolNode } from "@langchain/langgraph/prebuilt";
+import { AIMessage, ToolMessage } from "@langchain/core/messages";
 import {
   Annotation,
   END,
+  MessagesAnnotation,
+  NodeInterrupt,
   START,
   StateGraph,
-  NodeInterrupt,
-  MessagesAnnotation,
 } from "@langchain/langgraph";
-import {
-  BaseMessage,
-  ToolMessage,
-  type AIMessage,
-} from "@langchain/core/messages";
+import { ToolNode } from "@langchain/langgraph/prebuilt";
 import { ChatOpenAI } from "@langchain/openai";
 import {
+  ALL_TOOLS_LIST,
   priceSnapshotTool,
   StockPurchase,
-  ALL_TOOLS_LIST,
   webSearchTool,
 } from "tools.js";
 import { z } from "zod";
@@ -56,9 +52,7 @@ const shouldContinue = (state: typeof GraphAnnotation.State) => {
 
   const lastMessage = messages[messages.length - 1];
 
-  // Cast here since `tool_calls` does not exist on `BaseMessage`
-  const messageCastAI = lastMessage as AIMessage;
-  if (messageCastAI._getType() !== "ai" || !messageCastAI.tool_calls?.length) {
+  if (!AIMessage.isInstance(lastMessage) || !lastMessage.tool_calls?.length) {
     // LLM did not call any tools, or it's not an AI message, so we should end.
     return END;
   }
@@ -68,10 +62,10 @@ const shouldContinue = (state: typeof GraphAnnotation.State) => {
     return "execute_purchase";
   }
 
-  const { tool_calls } = messageCastAI;
+  const { tool_calls } = lastMessage;
   if (!tool_calls?.length) {
     throw new Error(
-      "Expected tool_calls to be an array with at least one element"
+      "Expected tool_calls to be an array with at least one element",
     );
   }
 
@@ -87,23 +81,23 @@ const shouldContinue = (state: typeof GraphAnnotation.State) => {
 
 const findCompanyName = async (companyName: string) => {
   // Use the web search tool to find the ticker symbol for the company.
-  const searchResults: string = await webSearchTool.invoke(
-    `What is the ticker symbol for ${companyName}?`
-  );
+  const searchResults = await webSearchTool.invoke({
+    query: `What is the ticker symbol for ${companyName}?`,
+  });
   const llmWithTickerOutput = llm.withStructuredOutput(
     z
       .object({
         ticker: z.string().describe("The ticker symbol of the company"),
       })
       .describe(
-        `Extract the ticker symbol of ${companyName} from the provided context.`
+        `Extract the ticker symbol of ${companyName} from the provided context.`,
       ),
-    { name: "extract_ticker" }
+    { name: "extract_ticker" },
   );
   const extractedTicker = await llmWithTickerOutput.invoke([
     {
       role: "user",
-      content: `Given the following search results, extract the ticker symbol for ${companyName}:\n${searchResults}`,
+      content: `Given the following search results, extract the ticker symbol for ${companyName}:\n${JSON.stringify(searchResults)}`,
     },
   ]);
 
@@ -113,18 +107,16 @@ const findCompanyName = async (companyName: string) => {
 const preparePurchaseDetails = async (state: typeof GraphAnnotation.State) => {
   const { messages } = state;
   const lastMessage = messages[messages.length - 1];
-  if (lastMessage._getType() !== "ai") {
+  if (!AIMessage.isInstance(lastMessage)) {
     throw new Error("Expected the last message to be an AI message");
   }
 
-  // Cast here since `tool_calls` does not exist on `BaseMessage`
-  const messageCastAI = lastMessage as AIMessage;
-  const purchaseStockTool = messageCastAI.tool_calls?.find(
-    (tc) => tc.name === "purchase_stock"
+  const purchaseStockTool = lastMessage.tool_calls?.find(
+    (tc) => tc.name === "purchase_stock",
   );
   if (!purchaseStockTool) {
     throw new Error(
-      "Expected the last AI message to have a purchase_stock tool call"
+      "Expected the last AI message to have a purchase_stock tool call",
     );
   }
   let { maxPurchasePrice, companyName, ticker } = purchaseStockTool.args;
@@ -135,7 +127,7 @@ const preparePurchaseDetails = async (state: typeof GraphAnnotation.State) => {
       // Ask the user for the missing information. Also, if the
       // last message had a tool call we need to add a tool message
       // to the messages array.
-      const toolMessages = messageCastAI.tool_calls?.map((tc) => {
+      const toolMessages = lastMessage.tool_calls?.map((tc) => {
         return {
           role: "tool",
           content: `Please provide the missing information for the ${tc.name} tool.`,
@@ -162,8 +154,9 @@ const preparePurchaseDetails = async (state: typeof GraphAnnotation.State) => {
 
   if (!maxPurchasePrice) {
     // If `maxPurchasePrice` is not defined, default to the current price.
-    const priceSnapshot = await priceSnapshotTool.invoke({ ticker });
-    maxPurchasePrice = priceSnapshot.snapshot.price;
+    const priceSnapshotResult = await priceSnapshotTool.invoke({ ticker });
+    const priceSnapshotData = JSON.parse(priceSnapshotResult);
+    maxPurchasePrice = priceSnapshotData.snapshot.price;
   }
 
   // Now we have the final ticker, we can return the purchase information.
@@ -179,7 +172,7 @@ const preparePurchaseDetails = async (state: typeof GraphAnnotation.State) => {
 const purchaseApproval = async (state: typeof GraphAnnotation.State) => {
   const { messages } = state;
   const lastMessage = messages[messages.length - 1];
-  if (!(lastMessage instanceof ToolMessage)) {
+  if (!ToolMessage.isInstance(lastMessage)) {
     // Interrupt the node to request permission to execute the purchase.
     throw new NodeInterrupt("Please confirm the purchase before executing.");
   }
@@ -188,7 +181,7 @@ const purchaseApproval = async (state: typeof GraphAnnotation.State) => {
 const shouldExecute = (state: typeof GraphAnnotation.State) => {
   const { messages } = state;
   const lastMessage = messages[messages.length - 1];
-  if (!(lastMessage instanceof ToolMessage)) {
+  if (!ToolMessage.isInstance(lastMessage)) {
     // Interrupt the node to request permission to execute the purchase.
     throw new NodeInterrupt("Please confirm the purchase before executing.");
   }
@@ -206,7 +199,7 @@ const executePurchase = async (state: typeof GraphAnnotation.State) => {
   // Execute the purchase. In this demo we'll just return a success message.
   const { ticker, quantity, maxPurchasePrice } = requestedStockPurchaseDetails;
 
-  const toolCallId = "tool_" + Math.random().toString(36).substring(2);
+  const toolCallId = `tool_${Math.random().toString(36).substring(2)}`;
   return {
     messages: [
       {

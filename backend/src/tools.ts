@@ -1,16 +1,16 @@
-import { TavilySearchResults } from "@langchain/community/tools/tavily_search";
 import { tool } from "@langchain/core/tools";
+import { TavilySearch } from "@langchain/tavily";
 import {
-  IncomeStatementsResponse,
   BalanceSheetsResponse,
   CashFlowStatementsResponse,
   CompanyFactsResponse,
+  IncomeStatementsResponse,
   SnapshotResponse,
 } from "types.js";
 import { z } from "zod";
 
 export async function callFinancialDatasetAPI<
-  Output extends Record<string, any> = Record<string, any>
+  Output extends Record<string, any> = Record<string, any>,
 >(fields: {
   endpoint: string;
   params: Record<string, string>;
@@ -41,7 +41,7 @@ export async function callFinancialDatasetAPI<
       }
     }
     throw new Error(
-      `Failed to fetch data from ${fields.endpoint}.\nResponse: ${res}`
+      `Failed to fetch data from ${fields.endpoint}.\nResponse: ${res}`,
     );
   }
   const data = await response.json();
@@ -84,7 +84,7 @@ const incomeStatementsTool = tool(
         .optional()
         .default(5),
     }),
-  }
+  },
 );
 
 const balanceSheetsTool = tool(
@@ -123,7 +123,7 @@ const balanceSheetsTool = tool(
         .optional()
         .default(5),
     }),
-  }
+  },
 );
 
 const cashFlowStatementsTool = tool(
@@ -162,7 +162,7 @@ const cashFlowStatementsTool = tool(
         .optional()
         .default(5),
     }),
-  }
+  },
 );
 
 const companyFactsTool = tool(
@@ -187,7 +187,7 @@ const companyFactsTool = tool(
     schema: z.object({
       ticker: z.string().describe("The ticker of the company. Example: 'AAPL'"),
     }),
-  }
+  },
 );
 
 export const priceSnapshotTool = tool(
@@ -212,7 +212,7 @@ export const priceSnapshotTool = tool(
     schema: z.object({
       ticker: z.string().describe("The ticker of the company. Example: 'AAPL'"),
     }),
-  }
+  },
 );
 
 const stockPurchaseSchema = z.object({
@@ -226,7 +226,7 @@ const stockPurchaseSchema = z.object({
     .number()
     .positive()
     .describe(
-      "The max price at which to purchase the stock. Defaults to the current price."
+      "The max price at which to purchase the stock. Defaults to the current price.",
     ),
 });
 
@@ -256,7 +256,7 @@ const purchaseStockTool = tool(
         .string()
         .optional()
         .describe(
-          "The name of the company. This field should be populated if you do not know the ticker."
+          "The name of the company. This field should be populated if you do not know the ticker.",
         ),
       quantity: z
         .number()
@@ -269,13 +269,13 @@ const purchaseStockTool = tool(
         .positive()
         .optional()
         .describe(
-          "The max price at which to purchase the stock. Defaults to the current price."
+          "The max price at which to purchase the stock. Defaults to the current price.",
         ),
     }),
-  }
+  },
 );
 
-export const webSearchTool = new TavilySearchResults({
+export const webSearchTool = new TavilySearch({
   maxResults: 2,
 });
 

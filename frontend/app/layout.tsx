@@ -1,10 +1,9 @@
-import "./globals.css";
+import "@/styles/globals.css";
 
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { Montserrat } from "next/font/google";
+import { geistSans } from "@/styles/font";
 import { MyRuntimeProvider } from "./MyRuntimeProvider";
-
-const montserrat = Montserrat({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
@@ -14,8 +13,8 @@ export default function RootLayout({
   return (
     <MyRuntimeProvider>
       <html lang="en">
-        <body className={cn(montserrat.className, "h-dvh")}>
-          {children}
+        <body className={cn(geistSans.className, "h-dvh")}>
+          <TooltipProvider>{children}</TooltipProvider>
         </body>
       </html>
     </MyRuntimeProvider>

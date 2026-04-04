@@ -41,7 +41,7 @@ async function handleRequest(req: NextRequest, method: string) {
       status: res.status,
       statusText: res.statusText,
       headers: {
-        ...res.headers,
+        ...Object.fromEntries(res.headers.entries()),
         ...getCorsHeaders(),
       },
     });

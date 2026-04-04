@@ -23,8 +23,12 @@ const GraphAnnotation = Annotation.Root({
 });
 
 const llm = new ChatOpenAI({
-  model: "gpt-4o",
+  model: "qwen3.5-flash",
   temperature: 0,
+  apiKey: process.env.OPENAI_API_KEY,
+  configuration: {
+    baseURL: process.env.OPENAI_BASE_URL,
+  },
 });
 
 const toolNode = new ToolNode(ALL_TOOLS_LIST);

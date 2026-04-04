@@ -12,7 +12,7 @@ export default function RootLayout({
 }>) {
   return (
     <MyRuntimeProvider>
-      <html lang="en">
+      <html lang="zh-CN">
         <body className={cn(geistSans.className, "h-dvh")}>
           <TooltipProvider>{children}</TooltipProvider>
         </body>

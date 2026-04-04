@@ -37,7 +37,7 @@ export function PriceSnapshot({
             <p className="font-semibold text-3xl">${price?.toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-muted-foreground text-sm">Day Change</p>
+            <p className="text-muted-foreground text-sm">今日涨跌</p>
             <p
               className={`flex items-center font-medium text-lg ${changeColor}`}
             >
@@ -47,7 +47,7 @@ export function PriceSnapshot({
             </p>
           </div>
           <div>
-            <p className="text-muted-foreground text-sm">Last Updated</p>
+            <p className="text-muted-foreground text-sm">更新时间</p>
             <p className="font-medium text-lg">
               {new Date(time).toLocaleTimeString()}
             </p>

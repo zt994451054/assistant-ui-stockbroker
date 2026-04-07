@@ -6,6 +6,7 @@ import {
   useAui,
 } from "@assistant-ui/react";
 import { useLangGraphRuntime } from "@assistant-ui/react-langgraph";
+import { useEffect } from "react";
 import { createThread, getThreadState, sendMessage } from "@/lib/chatApi";
 
 export function MyRuntimeProvider({
@@ -41,6 +42,11 @@ export function MyRuntimeProvider({
       };
     },
   });
+
+  // 页面加载时自动创建一个初始 thread，确保 aui.thread() 不是空占位符
+  useEffect(() => {
+    runtime.switchToNewThread();
+  }, [runtime]);
 
   const aui = useAui({
     suggestions: Suggestions([

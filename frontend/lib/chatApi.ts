@@ -57,6 +57,7 @@ export const sendMessage = (params: {
     configurable: {
       model_name: "openai",
     },
+    recursionLimit: 100,
   };
 
   return client.runs.stream(

@@ -47,37 +47,37 @@ export function MyRuntimeProvider({
       {
         title: "特斯拉股价",
         label: "→ 股价卡片",
-        prompt: "What's the current stock price of Tesla?",
+        prompt: "特斯拉现在的股价是多少？",
       },
       {
         title: "买入苹果股票",
         label: "→ 交易确认卡片",
-        prompt: "I want to buy 5 shares of Apple stock",
+        prompt: "我想买入5股苹果股票",
       },
       {
         title: "苹果利润表",
         label: "→ 利润表 + 柱状图",
-        prompt: "Show me Apple's income statement for the last 3 years",
+        prompt: "帮我查看苹果公司近3年的利润表",
       },
       {
         title: "特斯拉资产负债表",
         label: "→ 资产结构可视化",
-        prompt: "Show me Tesla's balance sheet",
+        prompt: "帮我查看特斯拉的资产负债表",
       },
       {
         title: "微软现金流量表",
         label: "→ 现金流 + 折线图",
-        prompt: "Show me Microsoft's cash flow statements for the last 3 years",
+        prompt: "帮我查看微软近3年的现金流量表",
       },
       {
         title: "英伟达公司信息",
         label: "→ 公司信息卡片",
-        prompt: "Tell me about NVIDIA as a company",
+        prompt: "帮我查询英伟达公司的基本信息",
       },
       {
         title: "特斯拉最新消息",
         label: "→ 搜索结果卡片",
-        prompt: "What's the latest news about Tesla?",
+        prompt: "特斯拉最近有什么新闻？",
       },
     ]),
   });

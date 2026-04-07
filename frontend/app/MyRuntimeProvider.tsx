@@ -44,9 +44,11 @@ export function MyRuntimeProvider({
   });
 
   // 页面加载时自动创建一个初始 thread，确保 aui.thread() 不是空占位符
+  // 用 ref 避免 runtime 引用变化导致重复触发
   useEffect(() => {
     runtime.switchToNewThread();
-  }, [runtime]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const aui = useAui({
     suggestions: Suggestions([

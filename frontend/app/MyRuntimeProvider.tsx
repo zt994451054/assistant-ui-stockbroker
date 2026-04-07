@@ -50,19 +50,24 @@ export function MyRuntimeProvider({
         prompt: "What's the current stock price of Tesla?",
       },
       {
-        title: "苹果实时价格",
-        label: "→ 股价卡片",
-        prompt: "What is AAPL trading at right now?",
-      },
-      {
         title: "买入苹果股票",
         label: "→ 交易确认卡片",
         prompt: "I want to buy 5 shares of Apple stock",
       },
       {
-        title: "买入英伟达股票",
-        label: "→ 交易确认卡片",
-        prompt: "Buy 10 shares of NVDA at market price",
+        title: "苹果利润表",
+        label: "→ 利润表 + 柱状图",
+        prompt: "Show me Apple's income statement for the last 3 years",
+      },
+      {
+        title: "特斯拉资产负债表",
+        label: "→ 资产结构可视化",
+        prompt: "Show me Tesla's balance sheet",
+      },
+      {
+        title: "微软现金流量表",
+        label: "→ 现金流 + 折线图",
+        prompt: "Show me Microsoft's cash flow statements for the last 3 years",
       },
       {
         title: "英伟达公司信息",
